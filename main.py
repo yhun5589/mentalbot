@@ -39,7 +39,6 @@ async def generate_ai_text(prompt, retries=3):
                             retry_after = float(
                                 detail.get("retryDelay", "5s").replace("s", "")
                             )
-                print(f"Quota hit. Retry in {retry_after}s")
                 await asyncio.sleep(retry_after)
                 attempt += 1
             else:
@@ -52,11 +51,29 @@ async def send_long_message(ctx, text, limit=2000):
     for i in range(0, len(text), limit):
         await ctx.send(text[i:i + limit])
 
+# ================= BOT CLASS =================
+class MyBot(commands.Bot):
+    async def setup_hook(self):
+        # start self-ping task safely
+        self.create_task(self.self_ping())
+
+    async def self_ping(self):
+        if not RENDER_EXTERNAL_URL:
+            return
+
+        async with ClientSession() as session:
+            while not self.is_closed():
+                try:
+                    await session.get(RENDER_EXTERNAL_URL)
+                except:
+                    pass
+                await asyncio.sleep(600)  # 10 minutes
+
 # ================= DISCORD BOT =================
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = MyBot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
@@ -75,7 +92,7 @@ async def stress(ctx, *, user_prompt: str):
     except Exception as e:
         await ctx.send(f"Error: {e}")
 
-# ================= RENDER KEEPALIVE SERVER =================
+# ================= RENDER WEB SERVER =================
 async def handle(request):
     return web.Response(text="Bot is alive.")
 
@@ -84,21 +101,6 @@ def run_web():
     app.router.add_get("/", handle)
     web.run_app(app, host="0.0.0.0", port=PORT)
 
-# ================= SELF-PING =================
-async def self_ping():
-    await bot.wait_until_ready()
-    if not RENDER_EXTERNAL_URL:
-        return
-
-    async with ClientSession() as session:
-        while not bot.is_closed():
-            try:
-                await session.get(RENDER_EXTERNAL_URL)
-            except:
-                pass
-            await asyncio.sleep(600)  # 10 minutes
-
 # ================= START =================
 threading.Thread(target=run_web, daemon=True).start()
-bot.loop.create_task(self_ping())
 bot.run(BOT_TOKEN)
