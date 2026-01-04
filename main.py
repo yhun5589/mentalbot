@@ -5,11 +5,8 @@ import threading
 import discord
 from discord.ext import commands
 from aiohttp import web, ClientSession
-from dotenv import load_dotenv
 from pathlib import Path
 
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(env_path)
 
 # ================= ENV =================
 API_KEY = os.getenv("API_KEY")
@@ -116,3 +113,4 @@ def run_web():
 # ================= START =================
 threading.Thread(target=run_web, daemon=True).start()
 bot.run(BOT_TOKEN)
+
