@@ -5,8 +5,11 @@ import threading
 import discord
 from discord.ext import commands
 from aiohttp import web, ClientSession
+from dotenv import load_dotenv
 from pathlib import Path
 
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(env_path)
 
 # ================= ENV =================
 API_KEY = os.getenv("API_KEY")
@@ -102,15 +105,25 @@ async def stress(ctx, *, user_prompt: str):
         await ctx.send(f"Error: {e}")
 
 # ================= RENDER WEB SERVER =================
-async def handle(request):
-    return web.Response(text="Bot is alive.")
+async def handle_ping(request):
+    return web.Response(text="OK")
 
-def run_web():
+async def start_web():
     app = web.Application()
-    app.router.add_get("/", handle)
-    web.run_app(app, host="0.0.0.0", port=PORT)
+    app.router.add_get("/", handle_ping)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    await site.start()
+
+    print(f"Web server running on port {PORT}")
 
 # ================= START =================
-threading.Thread(target=run_web, daemon=True).start()
-bot.run(BOT_TOKEN)
+async def main():
+    await start_web()
+    await bot.start(BOT_TOKEN)
 
+if __name__ == "__main__":
+    asyncio.run(main())
