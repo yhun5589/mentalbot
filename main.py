@@ -6,9 +6,6 @@ import discord
 from discord.ext import commands
 from aiohttp import web, ClientSession
 
-
-load_dotenv()
-
 # ================= ENV =================
 API_KEY = os.getenv("API_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -125,4 +122,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
