@@ -5,11 +5,9 @@ import threading
 import discord
 from discord.ext import commands
 from aiohttp import web, ClientSession
-from dotenv import load_dotenv
-from pathlib import Path
 
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(env_path)
+
+load_dotenv()
 
 # ================= ENV =================
 API_KEY = os.getenv("API_KEY")
@@ -127,3 +125,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
