@@ -5,13 +5,25 @@ import threading
 import discord
 from discord.ext import commands
 from aiohttp import web, ClientSession
+from dotenv import load_dotenv
+from pathlib import Path
+
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(env_path)
 
 # ================= ENV =================
 API_KEY = os.getenv("API_KEY")
-BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 MODEL_NAME = os.getenv("MODEL_NAME")
 PORT = int(os.getenv("PORT", 10000))
 RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL")
+
+print("API_KEY:", API_KEY)
+print("BOT_TOKEN:", BOT_TOKEN)
+print("MODEL_NAME:", MODEL_NAME)    
+print("PORT:", PORT)
+print("RENDER_EXTERNAL_URL:", RENDER_EXTERNAL_URL)
+
 
 client_genai = genai.Client(api_key=API_KEY)
 
@@ -55,7 +67,7 @@ async def send_long_message(ctx, text, limit=2000):
 class MyBot(commands.Bot):
     async def setup_hook(self):
         # start self-ping task safely
-        self.create_task(self.self_ping())
+        self.loop.create_task(self.self_ping())
 
     async def self_ping(self):
         if not RENDER_EXTERNAL_URL:
