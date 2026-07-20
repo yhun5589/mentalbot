@@ -6,11 +6,8 @@ from discord.ext import commands
 from aiohttp import web, ClientSession
 from google import genai
 import yt_dlp
-from dotenv import load_dotenv  # <-- ADD THIS
 
 # ================= ENV & CONFIG =================
-
-load_dotenv()  # <-- ADD THIS
 
 API_KEY = os.getenv("API_KEY")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
